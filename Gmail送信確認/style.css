@@ -138,8 +138,12 @@
 #gsc-confirm-send:disabled {
 	opacity: 0.3;
 }
+#gsc-confirm-send:not([disabled]) {
+	cursor: pointer;
+}
 
 #gsc-cancel-send {
+	cursor: pointer;
 	font-size: 1em;
 	width: 120px;
 	height: 40px;
