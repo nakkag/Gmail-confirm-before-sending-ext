@@ -94,19 +94,22 @@ window.onload = function() {
 			// 添付ファイル追加中
 			return;
 		}
-		// 自分のドメインを取得
-		let from = composeWindow.querySelectorAll("input[name='from']")[0].value;
-		if (!from) {
-			from = document.title.match(/[a-zA-Z0-9_.+-]+@([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,}/g);
-			if (from && from.length > 0) {
-				from = from.at(-1);
+
+		// 差出人
+		const from = composeWindow.querySelectorAll("input[name='from']")[0].value;
+		let domain = "";
+		if (from) {
+			domain = getDomain(from);
+		} else {
+			const m = document.title.match(/[a-zA-Z0-9_.+-]+@([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,}/g);
+			if (m && m.length > 0) {
+				domain = getDomain(m.at(-1));
 			}
 		}
 		function getDomain(m) {
 			const d = m.match(/[a-zA-Z0-9_.+-]+@(([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,})/);
 			return (d) ? d[1] : "";
 		}
-		const domain = (from) ? getDomain(from) : "";
 
 		// 宛先
 		function getMailAddress(type, a) {
@@ -191,21 +194,26 @@ window.onload = function() {
 				<div id="gsc-modal" class="gsc-modal" tabindex="0">
 					<h2>送信確認</h2>
 					<div class="gsc-contents">
+						<div id="gsc-from">
+							<h3>差出人</h3>
+							<label><input type="checkbox" class="gsc-check">${from}</label>
+							<hr />
+						</div>
 						<div>
 							<h3>宛先</h3>
-							<p id="gsc-to">To<br />${address.to.map(email => `<label><input type="checkbox" class="gsc-recipient-check">${email}</label><br />`).join('')}</p>
-							<p id="gsc-cc">Cc<br />${address.cc.map(email => `<label><input type="checkbox" class="gsc-recipient-check">${email}</label><br />`).join('')}</p>
-							<p id="gsc-bcc">Bcc<br />${address.bcc.map(email => `<label><input type="checkbox" class="gsc-recipient-check">${email}</label><br />`).join('')}</p>
+							<p id="gsc-to">To<br />${address.to.map(email => `<label><input type="checkbox" class="gsc-check">${email}</label><br />`).join('')}</p>
+							<p id="gsc-cc">Cc<br />${address.cc.map(email => `<label><input type="checkbox" class="gsc-check">${email}</label><br />`).join('')}</p>
+							<p id="gsc-bcc">Bcc<br />${address.bcc.map(email => `<label><input type="checkbox" class="gsc-check">${email}</label><br />`).join('')}</p>
+							<hr />
 						</div>
-						<hr />
 						<div>
 							<h3>件名</h3>
-							<label><input type="checkbox" class="gsc-subject-check">${subject}</label>
+							<label><input type="checkbox" class="gsc-check">${subject}</label>
+							<hr />
 						</div>
-						<hr />
 						<div>
 							<h3>添付ファイル</h3>
-							${attachments.length > 0 ? attachments.map(file => `<label><input type="checkbox" class="gsc-attachment-check">${file}</label><br>`).join('') : '<label class="gsc-none-data">(添付ファイルなし)</label>'}
+							${attachments.length > 0 ? attachments.map(file => `<label><input type="checkbox" class="gsc-check">${file}</label><br>`).join('') : '<label class="gsc-none-data">(添付ファイルなし)</label>'}
 						</div>
 					</div>
 					<div class="gsc-control">
@@ -216,6 +224,9 @@ window.onload = function() {
 			</div>
 		`;
 		document.body.appendChild(modal);
+		if (!from) {
+			document.getElementById("gsc-from").style.display = "none";
+		}
 		if (!address.to.length) {
 			document.getElementById("gsc-to").style.display = "none";
 		}
@@ -230,9 +241,9 @@ window.onload = function() {
 		const confirmSend = document.getElementById("gsc-confirm-send");
 		const confirmSendText = confirmSend.textContent;
 
-		document.querySelectorAll(".gsc-recipient-check, .gsc-subject-check, .gsc-attachment-check").forEach((checkbox) => {
+		document.querySelectorAll(".gsc-check").forEach((checkbox) => {
 			checkbox.addEventListener("change", () => {
-				const allChecked = document.querySelectorAll(".gsc-recipient-check, .gsc-subject-check, .gsc-attachment-check");
+				const allChecked = document.querySelectorAll(".gsc-check");
 				confirmSend.disabled = !Array.from(allChecked).every(cb => cb.checked);
 			});
 		});
