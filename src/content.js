@@ -2,7 +2,7 @@ window.onload = function() {
 	let sendInterval = null;
 
 	document.addEventListener("keydown", (event) => {
-		if (sendInterval || (event.key === "Escape" && document.getElementById("gsc-modal"))) {
+		if (sendInterval || (event.key === "Escape" && document.querySelector(".gsc-modal"))) {
 			event.stopPropagation();
 			document.getElementById("gsc-cancel-send").click();
 			return;
@@ -22,74 +22,71 @@ window.onload = function() {
 
 	const observer = new MutationObserver(() => {
 		// DOMツリーに変化があれば送信ボタンを確認する
-		changeButton();
+		document.querySelectorAll("div.J-J5-Ji.btA div[role='button'][jslog]").forEach(s => setSendButton(s));
 	});
 	observer.observe(document.body, { childList: true, subtree: true });
 
-	function changeButton() {
-		const sendButtons = document.querySelectorAll("div[role='button'][aria-label^='送信']");
-		sendButtons.forEach(sendButton => {
-			if (sendButton.dataset.listenerAdded) {
-				// 設定済
-				return;
-			}
-			// アドレス等を取得するための親を取得
-			let dialog = sendButton.closest("div[role='dialog']");
-			if (!dialog) {
-				dialog = sendButton.closest("div[role='region']");
-			}
-			if (!dialog) {
-				return;
-			}
-			// 送信ボタンの置き換え
-			const display = sendButton.style.display;
-			sendButton.dataset.listenerAdded = "true";
-			const newSendButton = sendButton.cloneNode(true);
-			sendButton.style.display = "none";
-			newSendButton.setAttribute("id", "");
-			newSendButton.classList.add("gsc-confirm-send-button");
-			newSendButton.classList.add("gsc-confirm");
-			sendButton.parentNode.appendChild(newSendButton);
-			newSendButton.addEventListener("click", (e) => {
-				chrome.storage.sync.get({
-					delay: 3
-				}, function(items) {
-					showDialog(dialog, items.delay, () => {
-						sendButton.dispatchEvent(new MouseEvent("click"));
-					});
+	function setSendButton(sendButton) {
+		if (sendButton.dataset.gscAdded) {
+			// 設定済
+			return;
+		}
+		sendButton.dataset.gscAdded = "true";
+		// アドレス等を取得するための親を取得
+		let dialog = sendButton.closest("div[role='dialog']");
+		if (!dialog) {
+			dialog = sendButton.closest("div[role='region']");
+		}
+		if (!dialog) {
+			return;
+		}
+		// 送信ボタンの置き換え
+		const display = sendButton.style.display;
+		sendButton.classList.add("gsc-confirm");
+		const newSendButton = sendButton.cloneNode(true);
+		sendButton.style.display = "none";
+		newSendButton.setAttribute("id", "");
+		newSendButton.classList.add("gsc-confirm-send-button");
+		sendButton.parentNode.appendChild(newSendButton);
+		newSendButton.addEventListener("click", (e) => {
+			chrome.storage.sync.get({
+				delay: 3
+			}, function(items) {
+				showDialog(dialog, items.delay, sendButton.textContent, () => {
+					sendButton.dispatchEvent(new MouseEvent("click"));
 				});
 			});
-			// その他の送信オプションの置き換え
-			const otherSendButton = sendButton.nextElementSibling;
-			if (otherSendButton) {
-				const newOtherSendButton = otherSendButton.cloneNode(true);
-				otherSendButton.style.display = "none";
-				newOtherSendButton.setAttribute("id", "");
-				newOtherSendButton.classList.add("gsc-confirm");
-				otherSendButton.parentNode.appendChild(newOtherSendButton);
-				newOtherSendButton.addEventListener("click", (e) => {
-					showDialog(dialog, 0, () => {
-						// ポップアップメニューを出すため一時的に元の送信ボタンを戻す
-						sendButton.style.display = display;
-						otherSendButton.style.display = display;
-						newSendButton.style.display = "none";
-						newOtherSendButton.style.display = "none";
-						otherSendButton.focus();
-						otherSendButton.dispatchEvent(new MouseEvent("mousedown"));
-					});
-				});
-				otherSendButton.addEventListener("blur", (e) => {
-					// 元の送信ボタンを再度隠す
-					sendButton.style.display = "none";
-					otherSendButton.style.display = "none";
-					newSendButton.style.display = display;
-					newOtherSendButton.style.display = display;
-				});
-			}
 		});
+		// その他の送信オプションの置き換え
+		const otherSendButton = sendButton.nextElementSibling;
+		if (otherSendButton) {
+			otherSendButton.classList.add("gsc-confirm");
+			const newOtherSendButton = otherSendButton.cloneNode(true);
+			otherSendButton.style.display = "none";
+			newOtherSendButton.setAttribute("id", "");
+			otherSendButton.parentNode.appendChild(newOtherSendButton);
+			newOtherSendButton.addEventListener("click", (e) => {
+				showDialog(dialog, 0, sendButton.textContent, () => {
+					// ポップアップメニューを出すため一時的に元の送信ボタンを戻す
+					sendButton.style.display = display;
+					otherSendButton.style.display = display;
+					newSendButton.style.display = "none";
+					newOtherSendButton.style.display = "none";
+					otherSendButton.focus();
+					otherSendButton.dispatchEvent(new MouseEvent("mousedown"));
+				});
+			});
+			otherSendButton.addEventListener("blur", (e) => {
+				// 元の送信ボタンを再度隠す
+				sendButton.style.display = "none";
+				otherSendButton.style.display = "none";
+				newSendButton.style.display = display;
+				newOtherSendButton.style.display = display;
+			});
+		}
 	}
 
-	function showDialog(composeWindow, delay, callback) {
+	function showDialog(composeWindow, delay, sendText, callback) {
 		if (composeWindow.querySelector("div[style^='width'][style*='%;']")) {
 			// 添付ファイル追加中
 			return;
@@ -190,8 +187,8 @@ window.onload = function() {
 		// ダイアログの追加
 		const modal = document.createElement("div");
 		modal.innerHTML = `
-			<div id="gsc-overlay" class="gsc-overlay">
-				<div id="gsc-modal" class="gsc-modal" tabindex="0">
+			<div class="gsc-overlay">
+				<div class="gsc-modal" tabindex="0">
 					<h2>送信確認</h2>
 					<div class="gsc-contents">
 						<div id="gsc-from">
@@ -217,15 +214,15 @@ window.onload = function() {
 						</div>
 					</div>
 					<div class="gsc-control">
-						<button id="gsc-confirm-send" disabled>送信</button>
+						<button id="gsc-confirm-send" disabled>${sendText}</button>
 						<button id="gsc-cancel-send">キャンセル</button>
 					</div>
 				</div>
 			</div>
 		`;
 		document.body.appendChild(modal);
-		if (!from) {
-			document.getElementById("gsc-from").style.display = "none";
+		if (!from || !composeWindow.querySelector("form[method='POST'] div[role='button'][aria-haspopup='true'][aria-expanded='false']")) {
+			document.getElementById("gsc-from").remove();
 		}
 		if (!address.to.length) {
 			document.getElementById("gsc-to").style.display = "none";
@@ -236,10 +233,9 @@ window.onload = function() {
 		if (!address.bcc.length) {
 			document.getElementById("gsc-bcc").style.display = "none";
 		}
-		document.getElementById("gsc-modal").focus();
+		document.querySelector(".gsc-modal").focus();
 
 		const confirmSend = document.getElementById("gsc-confirm-send");
-		const confirmSendText = confirmSend.textContent;
 
 		document.querySelectorAll(".gsc-check").forEach((checkbox) => {
 			checkbox.addEventListener("change", () => {
@@ -282,11 +278,11 @@ window.onload = function() {
 			}
 		});
 
-		document.getElementById("gsc-overlay").addEventListener("click", (e) => {
+		document.querySelector(".gsc-overlay").addEventListener("click", (e) => {
 			if (sendInterval) {
 				clearInterval(sendInterval);
 				sendInterval = null;
-				confirmSend.textContent = confirmSendText;
+				confirmSend.textContent = sendText;
 			}
 		});
 	}
