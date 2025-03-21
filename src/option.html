@@ -5,7 +5,13 @@
 		<title>Gmail送信確認 オプション</title>
 	</head>
 	<body>
-		<p>送信までの待ち時間: <input type="number" id="delay" size="3" pattern="[0-9]*" maxlength="3" style="width: 60px;"></input> 秒</p>
+		<p>メール送信までの待ち時間<br /><input type="number" id="delay" size="3" pattern="[0-9]*" maxlength="3" style="width: 60px;"></input> 秒</p>
+		<hr />
+		<p>メール作成時のオートコンプリート</p>
+		<div><label><input type="radio" name="disable-autocomplete" value="0" />有効</label></div>
+		<div><label><input type="radio" name="disable-autocomplete" value="1" />別ドメインのみ無効</label></div>
+		<div><label><input type="radio" name="disable-autocomplete" value="2" />無効</label></div>
+		<hr />
 		<p><button id="save">設定を保存</button></p>
 		<div id="status"></div>
 		<script src="options.js"></script>

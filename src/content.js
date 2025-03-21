@@ -1,11 +1,29 @@
 window.onload = function() {
 	let sendInterval = null;
 
+	let disableAutocompleteType = 0;
+	chrome.storage.sync.get({
+		disableAutocompleteType: 1
+	}, function(items) {
+		disableAutocompleteType = items.disableAutocompleteType;
+	});
+
 	document.addEventListener("keydown", (event) => {
 		if (sendInterval || (event.key === "Escape" && document.querySelector(".gsc-modal"))) {
 			event.stopPropagation();
 			document.getElementById("gsc-cancel-send").click();
 			return;
+		}
+		if (disableAutocompleteType !== 0 && event.key === "Tab") {
+			let dialog = event.target.closest("div[role='dialog']");
+			if (!dialog) {
+				dialog = event.target.closest("div[role='region']");
+			}
+			if (dialog) {
+				// Tabキーでの補完を抑制
+				event.stopPropagation();
+				return;
+			}
 		}
 		if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
 			event.stopPropagation();
@@ -21,11 +39,53 @@ window.onload = function() {
 	}, true);
 
 	const observer = new MutationObserver(() => {
-		// DOMツリーに変化があれば送信ボタンを確認する
 		document.querySelectorAll("div.J-J5-Ji.btA div[role='button'][jslog]").forEach(s => setSendButton(s));
+		document.querySelectorAll("div[peoplekit-id='noeiCf']").forEach(l => disableAutocomplete(l));
 	});
 	observer.observe(document.body, { childList: true, subtree: true });
 
+	// ドメイン取得
+	function getDomain(m) {
+		const d = m.match(/[a-zA-Z0-9_.+-]+@(([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,})/);
+		return (d) ? d[1] : "";
+	}
+
+	// オートコンプリートの無効化
+	function disableAutocomplete(list) {
+		if (list.style.display === "none" || disableAutocompleteType === 0) {
+			return;
+		}
+		if (disableAutocompleteType === 2) {
+			// オートコンプリート無効
+			list.remove();
+			return;
+		}
+
+		// 別ドメインのみオートコンプリート無効
+		let domain = "";
+		const from = list.querySelectorAll("input[name='from']");
+		if (from.length > 0 && from[0].value) {
+			domain = getDomain(from[0].value);
+		} else {
+			const m = document.title.match(/[a-zA-Z0-9_.+-]+@([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,}/g);
+			if (m && m.length > 0) {
+				domain = getDomain(m.at(-1));
+			}
+		}
+		if (domain) {
+			list.querySelectorAll("div[role='option']").forEach(op => {
+				const d = op.querySelector("div[data-hovercard-id]");
+				if (d && d.dataset.hovercardId && domain !== getDomain(d.dataset.hovercardId)) {
+					op.remove();
+				}
+			});
+		}
+		if (list.querySelectorAll("div[role='option']").length === 0) {
+			list.style.display = "none";
+		}
+	}
+
+	// 送信ボタンの置き換え
 	function setSendButton(sendButton) {
 		if (sendButton.dataset.gscAdded) {
 			// 設定済
@@ -86,6 +146,7 @@ window.onload = function() {
 		}
 	}
 
+	// 送信確認ダイアログの表示
 	function showDialog(composeWindow, delay, sendText, callback) {
 		if (composeWindow.querySelector("div[style^='width'][style*='%;']")) {
 			// 添付ファイル追加中
@@ -93,52 +154,44 @@ window.onload = function() {
 		}
 
 		// 差出人
-		const from = composeWindow.querySelectorAll("input[name='from']")[0].value;
 		let domain = "";
-		if (from) {
+		let from = composeWindow.querySelectorAll("input[name='from']");
+		if (from.length > 0 && from[0].value) {
+			from = from[0].value;
 			domain = getDomain(from);
 		} else {
+			from = "";
 			const m = document.title.match(/[a-zA-Z0-9_.+-]+@([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,}/g);
 			if (m && m.length > 0) {
 				domain = getDomain(m.at(-1));
 			}
 		}
-		function getDomain(m) {
-			const d = m.match(/[a-zA-Z0-9_.+-]+@(([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,})/);
-			return (d) ? d[1] : "";
-		}
 
 		// 宛先
 		function getMailAddress(type, a) {
 			let elms = composeWindow.querySelectorAll(`input[name='${type}']`);
-			if (elms && elms.length > 0) {
+			if (elms.length > 0) {
 				elms.forEach(elm => {
 					if (elm.value) {
 						addAddress(a, elm.value, null);
 					}
 				});
 			} else {
-				const elms = composeWindow.querySelectorAll(`div[name='${type}'] div[data-hovercard-id]`);
-				if (elms && elms.length > 0) {
-					elms.forEach(elm => {
-						if (!elm.dataset.name && !elm.dataset.hovercardId) {
-							retrun;
-						}
-						if (!elm.dataset.name || elm.dataset.name == elm.dataset.hovercardId) {
-							addAddress(a, elm.dataset.hovercardId, null);
-						} else {
-							addAddress(a, elm.dataset.hovercardId, elm.dataset.name);
-						}
-					});
-				}
-				const spans = composeWindow.querySelectorAll(`div[name='${type}'] span[peoplekit-id]`);
-				if (spans) {
-					spans.forEach(span => {
-						if (span.textContent) {
-							addAddress(a, span.textContent, null);
-						}
-					});
-				}
+				composeWindow.querySelectorAll(`div[name='${type}'] div[data-hovercard-id]`).forEach(elm => {
+					if (!elm.dataset.name && !elm.dataset.hovercardId) {
+						retrun;
+					}
+					if (!elm.dataset.name || elm.dataset.name == elm.dataset.hovercardId) {
+						addAddress(a, elm.dataset.hovercardId, null);
+					} else {
+						addAddress(a, elm.dataset.hovercardId, elm.dataset.name);
+					}
+				});
+				composeWindow.querySelectorAll(`div[name='${type}'] span[peoplekit-id]`).forEach(span => {
+					if (span.textContent) {
+						addAddress(a, span.textContent, null);
+					}
+				});
 			}
 		}
 		function addAddress(arr, addr, name) {
@@ -168,8 +221,7 @@ window.onload = function() {
 
 		// 添付ファイル
 		const attachments = [];
-		const attaches = composeWindow.querySelectorAll("input[name='attach']");
-		attaches.forEach(a => {
+		composeWindow.querySelectorAll("input[name='attach']").forEach(a => {
 			if (a.nextElementSibling) {
 				const attach = a.nextElementSibling;
 				if (attach.firstElementChild) {
