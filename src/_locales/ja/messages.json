@@ -1,4 +1,10 @@
 {
+  "extName": {
+    "message": "Gmail送信確認"
+  },
+  "extDescription": {
+    "message": "Gmailの誤送信対策Chrome拡張です。メール送信時に確認ダイアログを表示する機能、送信ボタンを押したときに遅延してメール送信する機能、オートコンプリートを無効にする機能があります。"
+  },
   "title": {
     "message": "送信確認"
   },
@@ -22,5 +28,32 @@
   },
   "no_attach": {
     "message": "(添付ファイルなし)"
+  },
+  "option_title": {
+    "message": "Gmail送信確認 - オプション"
+  },
+  "option_title_wait": {
+    "message": "メール送信までの待ち時間"
+  },
+  "option_title_sec": {
+    "message": "秒"
+  },
+  "option_title_autocomplete": {
+    "message": "メール作成時のオートコンプリート"
+  },
+  "option_title_autocomplete_0": {
+    "message": "有効"
+  },
+  "option_title_autocomplete_1": {
+    "message": "別ドメインのみ無効"
+  },
+  "option_title_autocomplete_2": {
+    "message": "無効"
+  },
+  "option_title_save": {
+    "message": "設定を保存"
+  },
+  "option_message_save": {
+    "message": "保存しました。<br />設定を反映させるためにはGmailをリロードしてださい。"
   }
 }

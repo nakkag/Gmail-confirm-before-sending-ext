@@ -1,6 +1,12 @@
 {
+  "extName": {
+    "message": "Confirm when sending Gmail"
+  },
+  "extDescription": {
+    "message": "This is a Chrome extension to prevent accidental sending of Gmail. It displays a confirmation dialog when you send a mail."
+  },
   "title": {
-    "message": "Check sending information"
+    "message": "Confirm when sending Gmail"
   },
   "from": {
     "message": "From"
@@ -22,5 +28,32 @@
   },
   "no_attach": {
     "message": "(No attach file)"
+  },
+  "option_title": {
+    "message": "Confirm when sending Gmail - Options"
+  },
+  "option_title_wait": {
+    "message": "Waiting time to send email"
+  },
+  "option_title_sec": {
+    "message": "sec"
+  },
+  "option_title_autocomplete": {
+    "message": "Autocomplete when composing an email"
+  },
+  "option_title_autocomplete_0": {
+    "message": "Enable"
+  },
+  "option_title_autocomplete_1": {
+    "message": "Disable another domain"
+  },
+  "option_title_autocomplete_2": {
+    "message": "Disable"
+  },
+  "option_title_save": {
+    "message": "Save Settings"
+  },
+  "option_message_save": {
+    "message": "Saved.<br />Please reload Gmail to reflect the settings."
   }
 }
