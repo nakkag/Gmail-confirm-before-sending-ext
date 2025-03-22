@@ -1,0 +1,26 @@
+{
+  "title": {
+    "message": "送信確認"
+  },
+  "from": {
+    "message": "差出人"
+  },
+  "recipients": {
+    "message": "宛先"
+  },
+  "subject": {
+    "message": "件名"
+  },
+  "attach": {
+    "message": "添付ファイル"
+  },
+  "cancel": {
+    "message": "キャンセル"
+  },
+  "no_subject": {
+    "message": "(件名なし)"
+  },
+  "no_attach": {
+    "message": "(添付ファイルなし)"
+  }
+}

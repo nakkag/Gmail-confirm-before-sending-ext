@@ -216,7 +216,7 @@ window.onload = function() {
 		// 件名
 		let subject = composeWindow.querySelector("input[name='subjectbox']").value;
 		if (!subject || !subject.trim()) {
-			subject = `<span class="gsc-none-data">(件名なし)</span>`;
+			subject = `<span class="gsc-none-data">${chrome.i18n.getMessage("no_subject")}</span>`;
 		}
 
 		// 添付ファイル
@@ -241,33 +241,33 @@ window.onload = function() {
 		modal.innerHTML = `
 			<div class="gsc-overlay">
 				<div class="gsc-modal" tabindex="0">
-					<h2>送信確認</h2>
+					<h2>${chrome.i18n.getMessage("title")}</h2>
 					<div class="gsc-contents">
 						<div id="gsc-from">
-							<h3>差出人</h3>
+							<h3>${chrome.i18n.getMessage("from")}</h3>
 							<label><input type="checkbox" class="gsc-check">${from}</label>
 							<hr />
 						</div>
 						<div>
-							<h3>宛先</h3>
+							<h3>${chrome.i18n.getMessage("recipients")}</h3>
 							<p id="gsc-to">To<br />${address.to.map(email => `<label><input type="checkbox" class="gsc-check">${email}</label><br />`).join('')}</p>
 							<p id="gsc-cc">Cc<br />${address.cc.map(email => `<label><input type="checkbox" class="gsc-check">${email}</label><br />`).join('')}</p>
 							<p id="gsc-bcc">Bcc<br />${address.bcc.map(email => `<label><input type="checkbox" class="gsc-check">${email}</label><br />`).join('')}</p>
 							<hr />
 						</div>
 						<div>
-							<h3>件名</h3>
+							<h3>${chrome.i18n.getMessage("subject")}</h3>
 							<label><input type="checkbox" class="gsc-check">${subject}</label>
 							<hr />
 						</div>
 						<div>
-							<h3>添付ファイル</h3>
-							${attachments.length > 0 ? attachments.map(file => `<label><input type="checkbox" class="gsc-check">${file}</label><br>`).join('') : '<label class="gsc-none-data">(添付ファイルなし)</label>'}
+							<h3>${chrome.i18n.getMessage("attach")}</h3>
+							${attachments.length > 0 ? attachments.map(file => `<label><input type="checkbox" class="gsc-check">${file}</label><br>`).join('') : `<label class="gsc-none-data">${chrome.i18n.getMessage("no_attach")}</label>`}
 						</div>
 					</div>
 					<div class="gsc-control">
 						<button id="gsc-confirm-send" disabled>${sendText}</button>
-						<button id="gsc-cancel-send">キャンセル</button>
+						<button id="gsc-cancel-send">${chrome.i18n.getMessage("cancel")}</button>
 					</div>
 				</div>
 			</div>

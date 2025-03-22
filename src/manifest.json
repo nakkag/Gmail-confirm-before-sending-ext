@@ -2,9 +2,10 @@
   "manifest_version": 3,
   "name": "Gmail送信確認",
   "version": "1.0",
-  "description": "Gmailの誤送信対策です。メール送信時に確認ダイアログを表示する機能、送信ボタンを押したときに遅延してメール送信する機能、オートコンプリートを無効にする機能があります。",
+  "description": "Gmailの誤送信対策Chrome拡張です。メール送信時に確認ダイアログを表示する機能、送信ボタンを押したときに遅延してメール送信する機能、オートコンプリートを無効にする機能があります。",
   "permissions": ["scripting", "storage"],
   "host_permissions": ["https://mail.google.com/*"],
+  "default_locale": "en",
   "options_page": "option.html",
   "content_scripts": [
     {

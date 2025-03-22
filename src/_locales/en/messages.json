@@ -1,0 +1,26 @@
+{
+  "title": {
+    "message": "Check sending information"
+  },
+  "from": {
+    "message": "From"
+  },
+  "recipients": {
+    "message": "Recipients"
+  },
+  "subject": {
+    "message": "Subject"
+  },
+  "attach": {
+    "message": "Attach files"
+  },
+  "cancel": {
+    "message": "Cancel"
+  },
+  "no_subject": {
+    "message": "(No subject)"
+  },
+  "no_attach": {
+    "message": "(No attach file)"
+  }
+}
