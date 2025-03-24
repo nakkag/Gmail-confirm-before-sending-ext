@@ -14,6 +14,31 @@ window.onload = function() {
 			document.getElementById("gsc-cancel-send").click();
 			return;
 		}
+		if (event.key === "Enter") {
+			if (document.querySelector(".gsc-modal")) {
+				if (document.activeElement && document.activeElement.tagName && document.activeElement.tagName.toLowerCase() !== "button") {
+					event.stopPropagation();
+					document.getElementById("gsc-confirm-send").click();
+				}
+				return;
+			}
+			if (event.ctrlKey || event.metaKey) {
+				let dialog = event.target.closest("div[role='dialog']");
+				if (!dialog) {
+					dialog = event.target.closest("div[role='region']");
+				}
+				if (dialog) {
+					event.stopPropagation();
+					dialog.querySelector(".gsc-confirm-send-button").click();
+					return;
+				}
+			}
+			if (disableAutocompleteType !== 0) {
+				// Enterキーでの補完を抑制
+				event.stopPropagation();
+				return;
+			}
+		}
 		if (disableAutocompleteType !== 0 && event.key === "Tab") {
 			let dialog = event.target.closest("div[role='dialog']");
 			if (!dialog) {
@@ -24,17 +49,6 @@ window.onload = function() {
 				event.stopPropagation();
 				return;
 			}
-		}
-		if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
-			event.stopPropagation();
-			let dialog = event.target.closest("div[role='dialog']");
-			if (!dialog) {
-				dialog = event.target.closest("div[role='region']");
-			}
-			if (!dialog) {
-				return;
-			}
-			dialog.querySelector(".gsc-confirm-send-button").click();
 		}
 	}, true);
 
@@ -148,6 +162,9 @@ window.onload = function() {
 
 	// 送信確認ダイアログの表示
 	function showDialog(composeWindow, delay, sendText, callback) {
+		if (document.querySelector(".gsc-modal")) {
+			return;
+		}
 		if (composeWindow.querySelector("div[style^='width'][style*='%;']")) {
 			// 添付ファイル追加中
 			return;
