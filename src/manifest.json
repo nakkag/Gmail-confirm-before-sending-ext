@@ -3,7 +3,7 @@
   "name": "__MSG_extName__",
   "version": "1.0",
   "description": "__MSG_extDescription__",
-  "permissions": ["scripting", "storage"],
+  "permissions": ["storage"],
   "host_permissions": ["https://mail.google.com/*"],
   "default_locale": "en",
   "options_page": "option.html",
