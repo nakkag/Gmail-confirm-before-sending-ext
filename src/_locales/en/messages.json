@@ -6,7 +6,7 @@
     "message": "This is a Chrome extension to prevent accidental sending of Gmail. It displays a confirmation dialog when you send a mail."
   },
   "title": {
-    "message": "Confirm when sending Gmail"
+    "message": "Confirm"
   },
   "from": {
     "message": "From"
