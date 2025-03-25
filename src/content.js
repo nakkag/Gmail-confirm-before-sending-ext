@@ -58,6 +58,10 @@ window.onload = function() {
 	});
 	observer.observe(document.body, { childList: true, subtree: true });
 
+	function escapeHTML(str) {
+		return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/\\/g, '&#92;');
+	}
+
 	// ドメイン取得
 	function getDomain(m) {
 		const d = m.match(/[a-zA-Z0-9_.+-]+@(([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,})/);
@@ -174,7 +178,7 @@ window.onload = function() {
 		let domain = "";
 		let from = composeWindow.querySelectorAll("input[name='from']");
 		if (from.length > 0 && from[0].value) {
-			from = from[0].value;
+			from = escapeHTML(from[0].value);
 			domain = getDomain(from);
 		} else {
 			from = "";
@@ -214,9 +218,9 @@ window.onload = function() {
 		function addAddress(arr, addr, name) {
 			let str = "";
 			if (name) {
-				str = `${name} &lt;<span class="gsc-mail-addr">${addr}</span>&gt;`;
+				str = `${escapeHTML(name)} &lt;<span class="gsc-mail-addr">${escapeHTML(addr)}</span>&gt;`;
 			} else {
-				str = `<span class="gsc-mail-addr">${addr}</span>`;
+				str = `<span class="gsc-mail-addr">${escapeHTML(addr)}</span>`;
 			}
 			if (domain !== getDomain(addr)) {
 				// 別ドメインは色を変更
@@ -234,6 +238,8 @@ window.onload = function() {
 		let subject = composeWindow.querySelector("input[name='subjectbox']").value;
 		if (!subject || !subject.trim()) {
 			subject = `<span class="gsc-none-data">${chrome.i18n.getMessage("no_subject")}</span>`;
+		} else {
+			subject = escapeHTML(subject);
 		}
 
 		// 添付ファイル
@@ -242,13 +248,13 @@ window.onload = function() {
 			if (a.nextElementSibling) {
 				const attach = a.nextElementSibling;
 				if (attach.firstElementChild) {
-					let file = `<span class="gsc-attach-file">${attach.firstElementChild.textContent}</span>`;
+					let file = `<span class="gsc-attach-file">${escapeHTML(attach.firstElementChild.textContent)}</span>`;
 					if (attach.firstElementChild.nextElementSibling) {
-						file += ` ${attach.firstElementChild.nextElementSibling.textContent}`;
+						file += ` ${escapeHTML(attach.firstElementChild.nextElementSibling.textContent)}`;
 					}
 					attachments.push(file);
 				} else {
-					attachments.push(attach.textContent);
+					attachments.push(escapeHTML(attach.textContent));
 				}
 			}
 		});
@@ -283,7 +289,7 @@ window.onload = function() {
 						</div>
 					</div>
 					<div class="gsc-control">
-						<button id="gsc-confirm-send" disabled>${sendText}</button>
+						<button id="gsc-confirm-send" disabled>${escapeHTML(sendText)}</button>
 						<button id="gsc-cancel-send">${chrome.i18n.getMessage("cancel")}</button>
 					</div>
 				</div>
