@@ -51,9 +51,9 @@
     "message": "すべて無効"
   },
   "option_title_save": {
-    "message": "設定を保存"
+    "message": "オプションを保存"
   },
   "option_message_save": {
-    "message": "保存しました。<br />設定を反映させるためにはGmailをリロードしてださい。"
+    "message": "保存しました。<br />オプションを反映させるためにはGmailをリロードしてださい。"
   }
 }
