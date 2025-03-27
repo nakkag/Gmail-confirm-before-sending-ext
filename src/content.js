@@ -33,7 +33,7 @@ window.onload = function() {
 					return;
 				}
 			}
-			if (disableAutocompleteType !== 0) {
+			if (!checkAutocomplete()) {
 				// Enterキーでの補完を抑制
 				event.stopPropagation();
 				return;
@@ -44,7 +44,7 @@ window.onload = function() {
 			if (!dialog) {
 				dialog = event.target.closest("div[role='region']");
 			}
-			if (dialog) {
+			if (dialog && !checkAutocomplete()) {
 				// Tabキーでの補完を抑制
 				event.stopPropagation();
 				return;
@@ -58,6 +58,7 @@ window.onload = function() {
 	});
 	observer.observe(document.body, { childList: true, subtree: true });
 
+	// HTML用のエスケープ
 	function escapeHTML(str) {
 		return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/\\/g, '&#92;');
 	}
@@ -66,6 +67,26 @@ window.onload = function() {
 	function getDomain(m) {
 		const d = m.match(/[a-zA-Z0-9_.+-]+@(([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,})/);
 		return (d) ? d[1] : "";
+	}
+
+	// オートコンプリートのチェック
+	function checkAutocomplete() {
+		if (disableAutocompleteType === 0) {
+			return true;
+		}
+		let ret = false;
+		if (disableAutocompleteType === 1) {
+			// リストで選択がある場合はオートコンプリートを有効とする
+			ret = [...document.querySelectorAll("div[peoplekit-id='noeiCf']")].find(list => {
+				return (list.style.display !== "none" && list.querySelector("div[role='option'].bjE"));
+			});
+		}
+		if (!ret && document.activeElement && document.activeElement.value &&
+			document.activeElement.value.match(/[a-zA-Z0-9_.+-]+@([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,}/)) {
+			// メールアドレスが入力済の場合はリンクにするため有効とする
+			ret = true;
+		}
+		return ret;
 	}
 
 	// オートコンプリートの無効化
@@ -91,6 +112,7 @@ window.onload = function() {
 			}
 		}
 		if (domain) {
+			let i = 0;
 			list.querySelectorAll("div[role='option']").forEach(op => {
 				const d = op.querySelector("div[data-hovercard-id]");
 				if (d && d.dataset.hovercardId && domain !== getDomain(d.dataset.hovercardId)) {
@@ -215,19 +237,24 @@ window.onload = function() {
 				});
 			}
 		}
-		function addAddress(arr, addr, name) {
-			let str = "";
-			if (name) {
-				str = `${escapeHTML(name)} &lt;<span class="gsc-mail-addr">${escapeHTML(addr)}</span>&gt;`;
-			} else {
-				str = `<span class="gsc-mail-addr">${escapeHTML(addr)}</span>`;
-			}
-			if (domain !== getDomain(addr)) {
-				// 別ドメインは色を変更
-				arr.push(`<span class="gsc-diff-domain">${str}</span>`);
-			} else {
-				arr.push(str);
-			}
+		function addAddress(arr, addrs, name) {
+			addrs.split(/[,;]/).forEach(addr => {
+				if ((!name || !name.trim()) && (!addr || !addr.trim())) {
+					return;
+				}
+				let str = "";
+				if (name) {
+					str = `${escapeHTML(name.trim())} &lt;<span class="gsc-mail-addr">${escapeHTML(addr.trim())}</span>&gt;`;
+				} else {
+					str = `<span class="gsc-mail-addr">${escapeHTML(addr.trim())}</span>`;
+				}
+				if (domain !== getDomain(addr)) {
+					// 別ドメインは色を変更
+					arr.push(`<span class="gsc-diff-domain">${str}</span>`);
+				} else {
+					arr.push(str);
+				}
+			});
 		}
 		const address = {to: [], cc: [], bcc: []};
 		getMailAddress('to', address.to);
