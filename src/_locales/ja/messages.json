@@ -1,12 +1,12 @@
 {
   "extName": {
-    "message": "Gmail送信確認"
+    "message": "Gmail送信前確認"
   },
   "extDescription": {
-    "message": "Gmailの誤送信対策Chrome拡張です。メール送信時に確認ダイアログを表示する機能、送信ボタンを押したときに遅延してメール送信する機能、オートコンプリートを無効にする機能があります。"
+    "message": "Gmailの誤送信対策Chrome拡張です。メール送信前に確認ダイアログを表示する機能、送信ボタンを押したときに遅延してメール送信する機能、オートコンプリートを無効にする機能があります。"
   },
   "title": {
-    "message": "送信確認"
+    "message": "送信前確認"
   },
   "from": {
     "message": "差出人"
@@ -30,7 +30,7 @@
     "message": "(添付ファイルなし)"
   },
   "option_title": {
-    "message": "Gmail送信確認 - オプション"
+    "message": "Gmail送信前確認 - オプション"
   },
   "option_title_wait": {
     "message": "メール送信までの待ち時間"
