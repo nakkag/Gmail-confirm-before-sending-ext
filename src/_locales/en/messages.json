@@ -3,7 +3,7 @@
     "message": "Gmail confirm before sending"
   },
   "extDescription": {
-    "message": "This is a Chrome extension to confirm before sending in Gmail. It displays a confirmation dialog when you send a mail."
+    "message": "This is a extension to confirm before sending in Gmail. It displays a confirmation dialog when you send a mail."
   },
   "title": {
     "message": "Confirm"
