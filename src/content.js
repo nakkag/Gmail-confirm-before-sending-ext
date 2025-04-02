@@ -8,7 +8,7 @@ window.onload = function() {
 		disableAutocompleteType = items.disableAutocompleteType;
 	});
 
-	document.addEventListener("keydown", (event) => {
+	document.addEventListener("keydown", event => {
 		if (sendInterval || (event.key === "Escape" && document.querySelector(".gsc-modal"))) {
 			event.stopPropagation();
 			document.getElementById("gsc-cancel-send").click();
@@ -90,6 +90,7 @@ window.onload = function() {
 	}
 
 	// オートコンプリートの無効化
+	let dispObserver = null;
 	function disableAutocomplete(list) {
 		if (list.style.display === "none" || disableAutocompleteType === 0) {
 			return;
@@ -120,8 +121,22 @@ window.onload = function() {
 				}
 			});
 		}
+		if (dispObserver) {
+			dispObserver.disconnect();
+			dispObserver = null;
+		}
 		if (list.querySelectorAll("div[role='option']").length === 0) {
+			// 空のメニューは非表示にする
 			list.style.display = "none";
+			dispObserver = new MutationObserver(mr => {
+				mr.forEach(({target, oldValue}) => {
+					if (/display *: *none/.test(oldValue) && target.style.display !== "none") {
+						// 空のメニューが再表示されたら非表示にする
+						target.style.display = "none";
+					}
+				});
+			});
+			dispObserver.observe(list, {attributes: true, attributeFilter: ['style'], attributeOldValue: true});
 		}
 	}
 
@@ -148,7 +163,7 @@ window.onload = function() {
 		newSendButton.setAttribute("id", "");
 		newSendButton.classList.add("gsc-confirm-send-button");
 		sendButton.parentNode.appendChild(newSendButton);
-		newSendButton.addEventListener("click", (e) => {
+		newSendButton.addEventListener("click", e => {
 			chrome.storage.sync.get({
 				delay: 3
 			}, function(items) {
@@ -165,7 +180,7 @@ window.onload = function() {
 			otherSendButton.style.display = "none";
 			newOtherSendButton.setAttribute("id", "");
 			otherSendButton.parentNode.appendChild(newOtherSendButton);
-			newOtherSendButton.addEventListener("click", (e) => {
+			newOtherSendButton.addEventListener("click", e => {
 				showDialog(dialog, 0, sendButton.textContent, () => {
 					// ポップアップメニューを出すため一時的に元の送信ボタンを戻す
 					sendButton.style.display = display;
@@ -176,7 +191,7 @@ window.onload = function() {
 					otherSendButton.dispatchEvent(new MouseEvent("mousedown"));
 				});
 			});
-			otherSendButton.addEventListener("blur", (e) => {
+			otherSendButton.addEventListener("blur", e => {
 				// 元の送信ボタンを再度隠す
 				sendButton.style.display = "none";
 				otherSendButton.style.display = "none";
@@ -339,7 +354,7 @@ window.onload = function() {
 
 		const confirmSend = document.getElementById("gsc-confirm-send");
 
-		document.querySelectorAll(".gsc-check").forEach((checkbox) => {
+		document.querySelectorAll(".gsc-check").forEach(checkbox => {
 			checkbox.addEventListener("change", () => {
 				const allChecked = document.querySelectorAll(".gsc-check");
 				confirmSend.disabled = !Array.from(allChecked).every(cb => cb.checked);
@@ -374,13 +389,13 @@ window.onload = function() {
 			}, 1000);
 		});
 
-		document.getElementById("gsc-cancel-send").addEventListener("click", (e) => {
+		document.getElementById("gsc-cancel-send").addEventListener("click", e => {
 			if (!sendInterval) {
 				modal.remove();
 			}
 		});
 
-		document.querySelector(".gsc-overlay").addEventListener("click", (e) => {
+		document.querySelector(".gsc-overlay").addEventListener("click", e => {
 			if (sendInterval) {
 				clearInterval(sendInterval);
 				sendInterval = null;
