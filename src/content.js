@@ -289,13 +289,13 @@ window.onload = function() {
 		composeWindow.querySelectorAll("input[name='attach']").forEach(a => {
 			if (a.nextElementSibling) {
 				const attach = a.nextElementSibling;
-				if (attach.firstElementChild) {
+				if (attach.firstElementChild && attach.firstElementChild.textContent && attach.firstElementChild.textContent.trim()) {
 					let file = `<span class="gsc-attach-file">${escapeHTML(attach.firstElementChild.textContent)}</span>`;
 					if (attach.firstElementChild.nextElementSibling) {
 						file += ` ${escapeHTML(attach.firstElementChild.nextElementSibling.textContent)}`;
 					}
 					attachments.push(file);
-				} else {
+				} else if (attach.textContent && attach.textContent.trim()) {
 					attachments.push(escapeHTML(attach.textContent));
 				}
 			}
