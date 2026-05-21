@@ -237,7 +237,7 @@ window.onload = function() {
 			} else {
 				composeWindow.querySelectorAll(`div[name='${type}'] div[data-hovercard-id]`).forEach(elm => {
 					if (!elm.dataset.name && !elm.dataset.hovercardId) {
-						retrun;
+						return;
 					}
 					if (!elm.dataset.name || elm.dataset.name == elm.dataset.hovercardId) {
 						addAddress(a, elm.dataset.hovercardId, null);

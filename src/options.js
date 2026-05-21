@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.getElementById('save').addEventListener('click', () => {
 	let delay = parseInt(document.getElementById('delay').value);
-	if (delay < 0 || delay > 999) {
+	if (!Number.isInteger(delay) || delay < 0 || delay > 999) {
 		delay = 3;
 	}
 	chrome.storage.sync.set({
